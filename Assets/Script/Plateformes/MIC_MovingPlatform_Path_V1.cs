@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 public class MIC_MovingPlatform_Path_V1 : MonoBehaviour
 {
-
     [Tooltip("La plateforme déplacée")]
     public Rigidbody platformRb;
 
@@ -31,7 +30,6 @@ public class MIC_MovingPlatform_Path_V1 : MonoBehaviour
 
     private void Awake()
     {
-
         // -------- AUTO FIND PLATFORM --------
         if (platformRb == null)
         {
@@ -66,15 +64,28 @@ public class MIC_MovingPlatform_Path_V1 : MonoBehaviour
         }
     }
 
-    private void Update()
+    // Appelé à chaque réactivation (via le bouton) : repart proprement.
+    private void OnEnable()
     {
+        if (platformRb != null)
+            lastPosition = platformRb.position;
 
+        currentSpeed = 0f;
+        speedVelocity = 0f;
+    }
+
+    // Appelé à chaque désactivation : la plateforme s'arrête et
+    // les scripts qui lisent velocity (portage du joueur) ne reçoivent plus rien.
+    private void OnDisable()
+    {
+        velocity = Vector3.zero;
+        frameDelta = Vector3.zero;
+        currentSpeed = 0f;
+        speedVelocity = 0f;
     }
 
     private void FixedUpdate()
     {
-
-
         if (platformRb == null)
             return;
 
@@ -83,11 +94,12 @@ public class MIC_MovingPlatform_Path_V1 : MonoBehaviour
 
         Transform targetPoint = points[currentPointIndex];
 
-        float worldRatio = 1;
+        currentSpeed = Mathf.SmoothDamp(currentSpeed, baseSpeed, ref speedVelocity, smoothDuration);
 
-        currentSpeed = Mathf.SmoothDamp(currentSpeed,baseSpeed,ref speedVelocity,smoothDuration);
-
-        Vector3 newPosition = Vector3.MoveTowards(platformRb.position,targetPoint.position,currentSpeed * worldRatio * Time.fixedDeltaTime);
+        Vector3 newPosition = Vector3.MoveTowards(
+            platformRb.position,
+            targetPoint.position,
+            currentSpeed * Time.fixedDeltaTime);
 
         // -------- MOVE --------
         platformRb.MovePosition(newPosition);
@@ -99,7 +111,7 @@ public class MIC_MovingPlatform_Path_V1 : MonoBehaviour
         lastPosition = newPosition;
 
         // -------- NEXT POINT --------
-        if (Vector3.Distance(platformRb.position, targetPoint.position) <= reachDistance)
+        if (Vector3.Distance(newPosition, targetPoint.position) <= reachDistance)
         {
             currentPointIndex += direction;
 

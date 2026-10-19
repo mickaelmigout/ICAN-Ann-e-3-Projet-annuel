@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class Bumper : MonoBehaviour
@@ -21,6 +20,10 @@ public class Bumper : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        // OnTriggerEnter est appelé même si le script est désactivé :
+        // on bloque donc manuellement.
+        if (!enabled) return;
+
         Rigidbody rb = other.attachedRigidbody;
 
         if (rb == null)
@@ -76,9 +79,7 @@ public class Bumper : MonoBehaviour
 
         if (showDebug)
         {
-            Debug.Log(
-                $"Bumper : {rb.gameObject.name} reçoit l'impulsion {force}"
-            );
+            Debug.Log($"Bumper : {rb.gameObject.name} reçoit l'impulsion {force}");
         }
     }
 
