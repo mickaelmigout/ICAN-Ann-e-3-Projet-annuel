@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -12,7 +11,11 @@ public class Player_Ani : MonoBehaviour
     private void Awake()
     {
         playerMovement = GetComponent<PlayerMovement>();
+    }
 
+    // Start (et non Awake) : garantit que PlayerMovement.Awake a déjà initialisé le Rigidbody.
+    private void Start()
+    {
         if (playerMovement != null)
         {
             playerMovement.SetAniState(JoueurAni);
@@ -30,11 +33,7 @@ public class Player_Ani : MonoBehaviour
                 playerMovement.SetAniState(JoueurAni);
             }
 
-            Debug.Log(
-                JoueurAni
-                    ? "Mode aninertiel ACTIVÉ"
-                    : "Mode aninertiel DÉSACTIVÉ"
-            );
+            Debug.Log(JoueurAni ? "Mode aninertiel ACTIVÉ" : "Mode aninertiel DÉSACTIVÉ");
         }
     }
 }
